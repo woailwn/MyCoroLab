@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
   set_event_accept(&ring, sockfd, (struct sockaddr *)&clientaddr, &len, 0);
 
   char buffer[BUFFER_LENGTH] = {0};
-
+  
   while (1)
   {
     io_uring_submit(&ring); // 提交 I/O 请求
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         int connfd = entries->res;
         set_event_recv(&ring, connfd, buffer, BUFFER_LENGTH, 0);
       }
-      else if (result.event == EVENT_READ)
+      else if (result.event == EVENT_READ) //这里不是socket状态，而是用户自己的标记，比如，之前我投了一个recv请求，打上标记。
       {
         int ret = entries->res;
         if (ret == 0)
