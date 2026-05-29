@@ -1,0 +1,21 @@
+[submodule "third_party/spdlog"]
+	path = third_party/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "third_party/googletest"]
+	path = third_party/googletest
+	url = https://github.com/google/googletest.git
+[submodule "third_party/atomic_queue"]
+	path = third_party/atomic_queue
+	url = https://github.com/max0x7ba/atomic_queue.git
+[submodule "third_party/liburing"]
+	path = third_party/liburing
+	url = https://github.com/axboe/liburing.git
+[submodule "third_party/benchmark"]
+	path = third_party/benchmark
+	url = https://github.com/google/benchmark.git
+[submodule "third_party/rust_echo_bench"]
+	path = third_party/rust_echo_bench
+	url = https://github.com/haraldh/rust_echo_bench.git
+[submodule "third_party/FlameGraph"]
+	path = third_party/FlameGraph
+	url = https://github.com/brendangregg/FlameGraph.git
