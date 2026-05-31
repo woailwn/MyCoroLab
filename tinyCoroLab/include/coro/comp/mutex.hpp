@@ -115,6 +115,21 @@ public:
 
     auto lock_guard() noexcept -> guard_awaiter { return guard_awaiter{*this}; }
 
+    // for condition_variable: try lock, if fail enqueue handle into mutex waiters
+    auto enqueue_waiter(std::coroutine_handle<> handle) noexcept -> void
+    {
+        std::lock_guard<detail::spinlock> lock(m_lock);
+        bool expected = false;
+        if (m_locked.compare_exchange_strong(expected, true, std::memory_order_acquire))
+        {
+            local_context().submit_task(handle);
+        }
+        else
+        {
+            m_waiters.push(handle);
+        }
+    }
+
 private:
     std::atomic<bool>                    m_locked{false};
     detail::spinlock                     m_lock;
