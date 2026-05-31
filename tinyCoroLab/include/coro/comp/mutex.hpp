@@ -13,55 +13,112 @@
 #include <atomic>
 #include <cassert>
 #include <coroutine>
+#include <queue>
 #include <type_traits>
 
 #include "coro/comp/mutex_guard.hpp"
+#include "coro/context.hpp"
 #include "coro/detail/types.hpp"
+#include "coro/scheduler.hpp"
+#include "coro/spinlock.hpp"
 
 namespace coro
 {
-/**
- * @brief Welcome to tinycoro lab4d, in this part you will build the basic coroutine
- * synchronization component----mutex by modifing mutex.hpp and mutex.cpp.
- * Please ensure you have read the document of lab4d.
- *
- * @warning You should carefully consider whether each implementation should be thread-safe.
- *
- * You should follow the rules below in this part:
- *
- * @note The location marked by todo is where you must add code, but you can also add code anywhere
- * you want, such as function and class definitions, even member variables.
- *
- * @note lab4 and lab5 are free designed lab, leave the interfaces that the test case will use,
- * and then, enjoy yourself!
- */
 
 class context;
 
-// TODO[lab4d]: This mutex is an example to make complie success,
-// You should delete it and add your implementation, I don't care what you do,
-// but keep the member function and construct function's declaration same with example.
 class mutex
 {
-    // Just make lock_guard() compile success
-    struct guard_awaiter : detail::noop_awaiter
+    // lock() 的 awaiter，await_resume 返回 void
+    struct lock_awaiter
     {
-        guard_awaiter(mutex& m) noexcept : mtx(m) {}
-        auto   await_resume() -> detail::lock_guard<mutex> { return detail::lock_guard<mutex>(mtx); }
-        mutex& mtx;
+        mutex& m_mutex;
+
+        bool await_ready() noexcept
+        {
+            return m_mutex.try_lock();
+        }
+        
+        void await_suspend(std::coroutine_handle<> handle) noexcept
+        {
+            std::lock_guard<detail::spinlock> lock(m_mutex.m_lock);
+            // 持有 spinlock 后再尝试抢锁，spinlock 保证和 unlock 互斥
+            bool expected = false;
+            if (m_mutex.m_locked.compare_exchange_strong(expected, true, std::memory_order_acquire))
+            {
+                local_context().submit_task(handle);
+                return;
+            }
+            m_mutex.m_waiters.push(handle);
+        }
+
+        void await_resume() noexcept {}
+    };
+
+    // lock_guard() 的 awaiter，await_resume 返回 lock_guard
+    struct guard_awaiter
+    {
+        mutex& m_mutex;
+
+        bool await_ready() noexcept
+        {
+            return m_mutex.try_lock();
+        }
+
+        void await_suspend(std::coroutine_handle<> handle) noexcept
+        {
+            std::lock_guard<detail::spinlock> lock(m_mutex.m_lock);
+            bool expected = false;
+            if (m_mutex.m_locked.compare_exchange_strong(expected, true, std::memory_order_acquire))
+            {
+                local_context().submit_task(handle);
+                return;
+            }
+            m_mutex.m_waiters.push(handle);
+        }
+
+        auto await_resume() noexcept -> detail::lock_guard<mutex>
+        {
+            return detail::lock_guard<mutex>(m_mutex);
+        }
     };
 
 public:
     mutex() noexcept {}
     ~mutex() noexcept {}
 
-    auto try_lock() noexcept -> bool { return {}; }
+    auto try_lock() noexcept -> bool
+    {
+        bool expected = false;
+        return m_locked.compare_exchange_strong(expected, true, std::memory_order_acquire);
+    }
 
-    auto lock() noexcept -> detail::noop_awaiter { return {}; };
+    auto lock() noexcept -> lock_awaiter { return lock_awaiter{*this}; }
 
-    auto unlock() noexcept -> void {};
+    auto unlock() noexcept -> void
+    {
+        std::lock_guard<detail::spinlock> lock(m_lock);
+        if (!m_waiters.empty())
+        {
+            // 把锁直接转交给下一个等待者，不改变 m_locked 状态
+            // 用 local_context().submit_task 绕过 register_wait（handle 已被计数）
+            auto handle = m_waiters.front();
+            m_waiters.pop();
+            local_context().submit_task(handle);
+        }
+        else
+        {
+            // 没有等待者，释放锁
+            m_locked.store(false, std::memory_order_release);
+        }
+    }
 
-    auto lock_guard() noexcept -> guard_awaiter { return {*this}; };
+    auto lock_guard() noexcept -> guard_awaiter { return guard_awaiter{*this}; }
+
+private:
+    std::atomic<bool>                    m_locked{false};
+    detail::spinlock                     m_lock;
+    std::queue<std::coroutine_handle<>>  m_waiters;
 };
 
 }; // namespace coro
