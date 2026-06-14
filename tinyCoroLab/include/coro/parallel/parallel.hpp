@@ -1,13 +1,3 @@
-/**
- * @file parallel.hpp
- * @author Jiahui Wang
- * @brief Convenient and friendly parallel computing functions provided for users.
- * @version 1.2
- * @date 2025-06-03
- *
- * @copyright Copyright (c) 2025
- *
- */
 #pragma once
 
 #include <functional>
@@ -34,23 +24,12 @@ concept reduce_operator_input = std::ranges::range<type>;
 
 // notes: reduce func is used to collect result, like mapreduce
 
-/**
- * @brief Parallel calc but no reduce func
- *
- * @param tasks subtask collections
- * @return task<void>
- */
 template<detail::parallel_tasks_void_type tasks_type>
 auto parallel_func(tasks_type&& tasks) -> task<void>
 {
     co_await when_all(std::forward<tasks_type>(tasks));
 }
 
-/**
- * @brief Convert any funciton object to std::function
- *
- * @tparam func_type
- */
 template<typename func_type>
 requires(coro::concepts::function_traits<func_type>::arity == 1) auto make_parallel_reduce_func(func_type func)
 {
@@ -59,14 +38,6 @@ requires(coro::concepts::function_traits<func_type>::arity == 1) auto make_paral
     return std_func_type(func);
 }
 
-/**
- * @brief Parallel calc with reduce func to collect result
- *
- * @tparam tasks_type
- * @tparam input_type: the input parameter of reduce func
- * @tparam return_type
- * @tparam ::coro::concepts::awaitable_traits<std::ranges::range_value_t<tasks_type>>::awaiter_return_type
- */
 template<
     detail::parallel_tasks_novoid_type tasks_type,
     detail::reduce_operator_input      input_type,

@@ -1,13 +1,3 @@
-/**
- * @file condition_variable.hpp
- * @author JiahuiWang
- * @brief lab5b
- * @version 1.1
- * @date 2025-03-24
- *
- * @copyright Copyright (c) 2025
- *
- */
 #pragma once
 
 #include <coroutine>
@@ -116,11 +106,11 @@ private:
 
 }; // namespace coro
 
-//µ÷ÓÃÂß¼­
+//è°ƒç”¨é€»è¾‘
 /*
   task<> notify_all_func(test_paras& para, int id)
   {
-      auto lock = co_await para.mtx.lock_guard(); // ÄÃËø
+      auto lock = co_await para.mtx.lock_guard(); // æ‹¿é”
       co_await para.cv.wait(para.mtx, [&]() { return para.id == id; });
       para.vec.push_back(id);
       para.id += 1;
@@ -128,64 +118,64 @@ private:
   }
 
   ---
-  ³õÊ¼×´Ì¬£ºpara.id = 0£¬Ìá½» id=0,1,2...9 ¹² 10 ¸öĞ­³Ì
+  åˆå§‹çŠ¶æ€ï¼špara.id = 0ï¼Œæäº¤ id=0,1,2...9 å…± 10 ä¸ªåç¨‹
   
-  id=0 µÄĞ­³ÌÏÈÄÃµ½Ëø£º
+  id=0 çš„åç¨‹å…ˆæ‹¿åˆ°é”ï¼š
 
   co_await cv.wait(mtx, cond)
-    ¡ú ¹¹Ôì awaiter{cv, mtx, cond}
-    ¡ú await_ready(): cond() = (para.id==0) = true ¡ú Ö±½Ó·µ»Ø true
-    ¡ú ²»×ß await_suspend£¬Ğ­³Ì²»¹ÒÆğ
-    ¡ú await_resume() ·µ»Ø£¬¼ÌĞøÖ´ĞĞ
-    ¡ú vec.push_back(0), para.id=1
-    ¡ú notify_all()
-       ¡ú ±éÀú m_waiters£¬¼ì²é¸÷ waiter µÄ cond
-       ¡ú mtx ÊÍ·Å£¨lock_guard Îö¹¹£©
+    â†’ æ„é€  awaiter{cv, mtx, cond}
+    â†’ await_ready(): cond() = (para.id==0) = true â†’ ç›´æ¥è¿”å› true
+    â†’ ä¸èµ° await_suspendï¼Œåç¨‹ä¸æŒ‚èµ·
+    â†’ await_resume() è¿”å›ï¼Œç»§ç»­æ‰§è¡Œ
+    â†’ vec.push_back(0), para.id=1
+    â†’ notify_all()
+       â†’ éå† m_waitersï¼Œæ£€æŸ¥å„ waiter çš„ cond
+       â†’ mtx é‡Šæ”¾ï¼ˆlock_guard ææ„ï¼‰
 
-  id=1,2...9 µÄĞ­³Ì¶¼ÔÚµÈËø»òµÈ cv£º
+  id=1,2...9 çš„åç¨‹éƒ½åœ¨ç­‰é”æˆ–ç­‰ cvï¼š
 
   co_await cv.wait(mtx, cond)
-    ¡ú await_ready(): cond() = (para.id==1/2..) ¡Ù 0 = false
-    ¡ú await_suspend(handle):
-        1. mtx.unlock()          ¡û ÊÍ·ÅËø
-        2. m_waiters.push({handle, mtx, cond})  ¡û ½ø cv µÈ´ı¶ÓÁĞ
-    ¡ú Ğ­³Ì¹ÒÆğ
+    â†’ await_ready(): cond() = (para.id==1/2..) â‰  0 = false
+    â†’ await_suspend(handle):
+        1. mtx.unlock()          â† é‡Šæ”¾é”
+        2. m_waiters.push({handle, mtx, cond})  â† è¿› cv ç­‰å¾…é˜Ÿåˆ—
+    â†’ åç¨‹æŒ‚èµ·
 
-  id=0 µ÷ÓÃ notify_all()£º
+  id=0 è°ƒç”¨ notify_all()ï¼š
 
-  ±éÀú m_waiters ÖĞµÄ 9 ¸ö waiter£º
-    id=1: cond() = (para.id==1) = true  ¡ú enqueue_waiter ¡ú ÖØĞÂÇÀËø
-    id=2: cond() = (para.id==2) = false ¡ú ·Å»Ø cv µÈ´ı¶ÓÁĞ
-    id=3~9: Í¬ÉÏ£¬È«²¿·Å»Ø
+  éå† m_waiters ä¸­çš„ 9 ä¸ª waiterï¼š
+    id=1: cond() = (para.id==1) = true  â†’ enqueue_waiter â†’ é‡æ–°æŠ¢é”
+    id=2: cond() = (para.id==2) = false â†’ æ”¾å› cv ç­‰å¾…é˜Ÿåˆ—
+    id=3~9: åŒä¸Šï¼Œå…¨éƒ¨æ”¾å›
 
-  id=1 ÇÀµ½Ëøºó»Ö¸´Ö´ĞĞ£º
+  id=1 æŠ¢åˆ°é”åæ¢å¤æ‰§è¡Œï¼š
 
-  await_resume() ·µ»Ø
-  ¡ú vec.push_back(1), para.id=2
-  ¡ú notify_all()
-     ¡ú ±éÀúÊ£Óà 8 ¸ö waiter
-     ¡ú id=2: cond() = true ¡ú enqueue_waiter
-     ¡ú id=3~9: false ¡ú ·Å»Ø
-  ¡ú lock_guard Îö¹¹£¬ÊÍ·ÅËø
+  await_resume() è¿”å›
+  â†’ vec.push_back(1), para.id=2
+  â†’ notify_all()
+     â†’ éå†å‰©ä½™ 8 ä¸ª waiter
+     â†’ id=2: cond() = true â†’ enqueue_waiter
+     â†’ id=3~9: false â†’ æ”¾å›
+  â†’ lock_guard ææ„ï¼Œé‡Šæ”¾é”
 
-  ÒÀ´ËÀàÍÆ£¬Ö±µ½ id=9 Ö´ĞĞÍê¡£
+  ä¾æ­¤ç±»æ¨ï¼Œç›´åˆ° id=9 æ‰§è¡Œå®Œã€‚
 
   ---
-  ¹Ø¼üÂ·¾¶×Ü½á£º
+  å…³é”®è·¯å¾„æ€»ç»“ï¼š
 
   co_await cv.wait(mtx, cond)
-           ¡ı
+           â†“
       await_ready()
-      cond Âú×ã ©¤©¤¡ú Ö±½Ó¼ÌĞø£¨²»¹ÒÆğ£¬²»ÊÍ·ÅËø£©
-      cond ²»Âú×ã
-           ¡ı
+      cond æ»¡è¶³ â”€â”€â†’ ç›´æ¥ç»§ç»­ï¼ˆä¸æŒ‚èµ·ï¼Œä¸é‡Šæ”¾é”ï¼‰
+      cond ä¸æ»¡è¶³
+           â†“
       await_suspend()
-      unlock(mtx) + ½ø cv µÈ´ı¶ÓÁĞ
-           ¡ı
-      Ğ­³Ì¹ÒÆğ...µÈ notify
-           ¡ı
-      notify Ê±¼ì²é cond
-      Âú×ã ¡ú enqueue_waiter£¨ÖØĞÂÇÀËø£©¡ú await_resume() ¡ú ¼ÌĞøÖ´ĞĞ
-      ²»Âú×ã ¡ú ÁôÔÚ cv ¶ÓÁĞ ¡ú µÈÏÂ´Î notify
+      unlock(mtx) + è¿› cv ç­‰å¾…é˜Ÿåˆ—
+           â†“
+      åç¨‹æŒ‚èµ·...ç­‰ notify
+           â†“
+      notify æ—¶æ£€æŸ¥ cond
+      æ»¡è¶³ â†’ enqueue_waiterï¼ˆé‡æ–°æŠ¢é”ï¼‰â†’ await_resume() â†’ ç»§ç»­æ‰§è¡Œ
+      ä¸æ»¡è¶³ â†’ ç•™åœ¨ cv é˜Ÿåˆ— â†’ ç­‰ä¸‹æ¬¡ notify
 
 */

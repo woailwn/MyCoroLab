@@ -1,13 +1,3 @@
-/**
- * @file channel.hpp
- * @author JiahuiWang
- * @brief lab5c
- * @version 1.1
- * @date 2025-03-24
- *
- * @copyright Copyright (c) 2025
- *
- */
 #pragma once
 
 #include <array>
@@ -30,7 +20,6 @@ namespace coro
 
 namespace detail
 {
-// TODO[lab5c]: Add code that you don't want to use externally in namespace detail
 }; // namespace detail
 
 template<concepts::conventional_type T, size_t capacity = 1>
@@ -59,7 +48,6 @@ class channel
     std::queue<pending_sender>   m_senders;
     std::queue<pending_receiver> m_receivers;
 
-    // Called under m_lock. Returns true if send completed immediately (no suspension).
     bool try_send_locked(T& value, bool& result) noexcept
     {
         if (m_closed)
@@ -84,7 +72,6 @@ class channel
         return false;
     }
 
-    // Called under m_lock. Returns true if recv completed immediately (no suspension).
     bool try_recv_locked(data_type& result) noexcept
     {
         if (!m_buffer.empty())

@@ -26,7 +26,7 @@ struct spinlock
             {
                 return;
             }
-            // Wait for lock to be released without generating cache misses
+            // 等待 lock to be released without generating cache misses
             while (lock_.load(memory_order_relaxed))
             {
                 // Issue X86 PAUSE or ARM YIELD instruction to reduce contention between

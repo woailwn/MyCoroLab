@@ -5,13 +5,8 @@
 namespace coro::detail
 {
 
-// FIXME: Why locktype report error?
+// 修复: Why locktype report error?
 // template<concepts::lockype T>
-/**
- * @brief RAII for lock
- *
- * @tparam T
- */
 template<typename T>
 class lock_guard
 {

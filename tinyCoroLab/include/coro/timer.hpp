@@ -10,7 +10,7 @@
 #include "coro/concepts/common.hpp"
 #include "coro/io/base_awaiter.hpp"
 
-// TODO: Add time bias: timeout_bias_nanosecond
+// 待办: Add time bias: timeout_bias_nanosecond
 namespace coro::time
 {
 
@@ -27,14 +27,6 @@ using coro_high_resolution_clock = std::chrono::high_resolution_clock;
 
 namespace detail
 {
-/**
- * @brief Get the kernel timespec object from std::duration
- *
- * @tparam Rep: the time period type
- * @tparam Period: time period
- * @param time_duration
- * @return __kernel_timespec
- */
 template<typename Rep, typename Period>
 inline auto get_kernel_timespec(std::chrono::duration<Rep, Period> time_duration) -> __kernel_timespec
 {
@@ -43,14 +35,6 @@ inline auto get_kernel_timespec(std::chrono::duration<Rep, Period> time_duration
     return __kernel_timespec{.tv_sec = seconds, .tv_nsec = nanoseconds};
 }
 
-/**
- * @brief Get the kernel timespec object from std::time_point
- *
- * @tparam Clock: only support [system_clock|steady_clock|high_resolution_clock]
- * @tparam Duration: C++ std::duration
- * @param time_point
- * @return __kernel_timespec
- */
 template<typename Clock, typename Duration>
 requires(coro::concepts::in_types<
          Clock,
@@ -68,18 +52,6 @@ using ::coro::detail::local_engine;
 using coro::io::detail::io_info;
 using coro::io::detail::io_type;
 
-/**
- * @brief A timer can be co_await and support chained call
- *
- * @warning The construct flag donesn't work, so just keep default,
- * later I will fix it
- *
- * @note The construct flag only support [timeout_boottime|timeout_realtime|timeout_monotonic],
- * which will choose different clock, the default value is timeout_boottime, which mean boottime clock
- * is used, just keep the value default
- *
- * @note More details abut flag please see https://man7.org/linux/man-pages/man3/io_uring_prep_timeout.3.html
- */
 class timer
 {
     struct timer_awaiter : coro::io::detail::base_io_awaiter
@@ -112,49 +84,25 @@ class timer
 public:
     explicit timer(unsigned flag = timeout_monotonic) noexcept : m_flag(flag) {}
 
-    /**
-     * @brief add seconds
-     *
-     * @param seconds
-     * @return timer&
-     */
-    CORO_INLINE auto add_seconds(uint64_t seconds) -> timer&
+        CORO_INLINE auto add_seconds(uint64_t seconds) -> timer&
     {
         m_ts.tv_sec += seconds;
         return *this;
     }
 
-    /**
-     * @brief add millseconds
-     *
-     * @param mseconds
-     * @return timer&
-     */
-    CORO_INLINE auto add_mseconds(uint64_t mseconds) -> timer&
+        CORO_INLINE auto add_mseconds(uint64_t mseconds) -> timer&
     {
         m_ts.tv_nsec += (1000000 * mseconds);
         return *this;
     }
 
-    /**
-     * @brief add microseconds
-     *
-     * @param useconds
-     * @return timer&
-     */
-    CORO_INLINE auto add_useconds(uint64_t useconds) -> timer&
+        CORO_INLINE auto add_useconds(uint64_t useconds) -> timer&
     {
         m_ts.tv_nsec += (1000 * useconds);
         return *this;
     }
 
-    /**
-     * @brief add nanoseconds
-     *
-     * @param nseconds
-     * @return timer&
-     */
-    CORO_INLINE auto add_nseconds(uint64_t nseconds) -> timer&
+        CORO_INLINE auto add_nseconds(uint64_t nseconds) -> timer&
     {
         m_ts.tv_nsec += nseconds;
         return *this;
@@ -167,13 +115,7 @@ public:
         return *this;
     }
 
-    /**
-     * @brief set timer by timepoint
-     *
-     * @tparam Clock: only support [system_clock|steady_clock|high_resolution_clock]
-     * @tparam Duration
-     */
-    template<typename Clock, typename Duration>
+        template<typename Clock, typename Duration>
     requires(coro::concepts::in_types<
              Clock,
              coro_system_clock,

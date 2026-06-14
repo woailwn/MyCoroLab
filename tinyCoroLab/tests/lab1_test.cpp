@@ -251,7 +251,6 @@ TEST_F(TaskTest, SubcallCase4)
     ASSERT_EQ(p.promise().result(), 34);
 }
 
-// test the fibonacci func implemented by task nested call but task will suspend in the middle state.
 TEST_F(TaskTest, SubcallCase5)
 {
     auto p = func7(10, vec);

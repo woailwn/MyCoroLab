@@ -8,18 +8,8 @@
 
 namespace coro::utils
 {
-/**
- * @brief set the fd noblock
- *
- * @param fd
- */
 auto set_fd_noblock(int fd) noexcept -> void;
 
-/**
- * @brief Get the nonsense fd, don't forget to close
- *
- * @return int
- */
 auto get_null_fd() noexcept -> int;
 
 inline auto sleep(int64_t t) noexcept -> void
@@ -37,21 +27,8 @@ inline auto usleep(int64_t t) noexcept -> void
     std::this_thread::sleep_for(std::chrono::microseconds(t));
 }
 
-/**
- * @brief remove to_trim from s
- *
- * @param s
- * @param to_trim
- * @return std::string&
- */
 auto trim(std::string& s, const char* to_trim) noexcept -> std::string&;
 
-/**
- * @brief Convert the letters to lowercase
- *
- * @param c
- * @return unsigned char
- */
 inline auto to_lower(int c) -> unsigned char
 {
     const static unsigned char table[256] = {
@@ -71,11 +48,6 @@ inline auto to_lower(int c) -> unsigned char
     return table[(unsigned char)(char)c];
 }
 
-/**
- * @brief Calculate the hash value of string
- *
- * @warning case insensitive
- */
 struct hash
 {
     auto operator()(const std::string& key) const -> size_t { return hash_core(key.data(), key.size(), 0); }
@@ -93,11 +65,6 @@ struct hash
     }
 };
 
-/**
- * @brief return if a == b
- *
- * @warning case insensitive
- */
 inline auto equal(const std::string& a, const std::string& b) -> bool
 {
     return a.size() == b.size() &&
@@ -109,24 +76,11 @@ struct equal_to
     auto operator()(const std::string& a, const std::string& b) const -> bool { return equal(a, b); }
 };
 
-/**
- * @brief Determine whether a string is a number
- *
- * @param str
- * @return true
- * @return false
- */
 inline auto is_numeric(const std::string& str) -> bool
 {
     return !str.empty() && std::all_of(str.cbegin(), str.cend(), [](unsigned char c) { return std::isdigit(c); });
 }
 
-/**
- * @brief Find file extension
- *
- * @param path
- * @return std::string
- */
 inline auto file_extension(const std::string& path) -> std::string
 {
     std::smatch       m;

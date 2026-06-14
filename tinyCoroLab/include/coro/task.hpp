@@ -1,13 +1,3 @@
-/**
- * @file task.hpp
- * @author hongyu
- * @brief lab1
- * @version 1.1
- * @date 2026-05-25
- *
- * @copyright Copyright (c) 2026
- *
- */
 #pragma once
 
 #include <cassert>
@@ -24,19 +14,7 @@
 
 namespace coro
 {
-/**
- * @brief Welcome to tinycoro lab1, in this part you will add codes for task.hpp to make task can be
- * detached and after the execution is completed, the executive power will be transferred to the
- * parent level.
- *
- * You should follow the rules below in this part:
- *
- * @note Do not modify existing functions and class declaration, which may cause the test to not run
- * correctly, but you can change the implementation logic if you need.
- *
- * @note The location marked by todo is where you must add code, but you can also add code anywhere
- * you want, such as function and class definitions, even member variables.
- */
+
 
 template<typename return_type = void>
 class task;
@@ -50,10 +28,9 @@ struct promise_base
     promise_base() noexcept = default;
     ~promise_base()         = default;
 
-    //创建时的调度逻辑（立即挂起不执行协程体）-> 必须交给执行引擎执行
     constexpr auto initial_suspend() noexcept { return std::suspend_always{}; }
 
-    [[CORO_TEST_USED(lab1)]] auto final_suspend() noexcept
+    auto final_suspend() noexcept
     {
         struct final_awaiter{
             bool await_ready() noexcept {return false;}
@@ -65,7 +42,6 @@ struct promise_base
                 if(parent){
                     return parent;
                 }
-                return std::noop_coroutine(); //什么都不做
             }
 
             void await_resume() noexcept {}
@@ -253,7 +229,7 @@ public:
         如果不 detach，task 析构时把协程帧销毁了，执行引擎拿着一个野指针
         resume 时就会coredump
     */
-    [[CORO_TEST_USED(lab1)]] auto detach() -> void
+    auto detach() -> void
     {
         m_coroutine.promise().m_detached = true;
         m_coroutine=nullptr;
@@ -298,7 +274,7 @@ using coroutine_handle = std::coroutine_handle<detail::promise_base>;
  *
  * @param handle
  */
-[[CORO_TEST_USED(lab1)]] inline auto clean(std::coroutine_handle<> handle) noexcept -> void
+inline auto clean(std::coroutine_handle<> handle) noexcept -> void
 {
     auto h = std::coroutine_handle<detail::promise_base>::from_address(handle.address());
     if(h.promise().m_detached){

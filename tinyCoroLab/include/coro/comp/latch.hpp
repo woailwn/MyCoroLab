@@ -1,13 +1,3 @@
-/**
- * @file latch.hpp
- * @author JiahuiWang
- * @brief lab4b
- * @version 1.1
- * @date 2025-03-24
- *
- * @copyright Copyright (c) 2025
- *
- */
 #pragma once
 
 #include <atomic>
@@ -19,21 +9,7 @@
 #include "coro/spinlock.hpp"
 namespace coro
 {
-/**
- * @brief Welcome to tinycoro lab4b, in this part you will build the basic coroutine
- * synchronization component - latch by modifing latch.hpp and latch.cpp. Please ensure
- * you have read the document of lab4b.
- *
- * @warning You should carefully consider whether each implementation should be thread-safe.
- *
- * You should follow the rules below in this part:
- *
- * @note The location marked by todo is where you must add code, but you can also add code anywhere
- * you want, such as function and class definitions, even member variables.
- *
- * @note lab4 and lab5 are free designed lab, leave the interfaces that the test case will use,
- * and then, enjoy yourself!
- */
+
 class latch
 {
     struct awaiter
@@ -42,14 +18,14 @@ class latch
 
         bool await_ready() noexcept
         {
-            // ¼ÆÊıÒÑ¾­ÊÇ 0£¬Ö±½Ó²»¹ÒÆğ
+            // è®¡æ•°å·²ç»æ˜¯ 0ï¼Œç›´æ¥ä¸æŒ‚èµ·
             return m_latch.m_count.load(std::memory_order_acquire) == 0;
         }
 
         void await_suspend(std::coroutine_handle<> handle) noexcept
         {
             std::lock_guard<detail::spinlock> lock(m_latch.m_lock);
-            // ¶ş´Î¼ì²é£º·ÀÖ¹ await_ready µ½ await_suspend Ö®¼ä count_down µ½ 0
+            // äºŒæ¬¡æ£€æŸ¥ï¼šé˜²æ­¢ await_ready åˆ° await_suspend ä¹‹é—´ count_down åˆ° 0
             if (m_latch.m_count.load(std::memory_order_acquire) == 0)
             {
                 submit_to_scheduler(handle);
@@ -70,9 +46,9 @@ public:
 
     auto count_down() noexcept -> void
     {
-        // ÏÈ¼õ 1£¬ÔÙ¼ì²éÊÇ·ñµ½ 0
+        // å…ˆå‡ 1ï¼Œå†æ£€æŸ¥æ˜¯å¦åˆ° 0
         auto prev = m_count.fetch_sub(1, std::memory_order_acq_rel);
-        if (prev == 1)  // ¼õÖ®Ç°ÊÇ 1£¬¼õÍê±ä³É 0
+        if (prev == 1)  // å‡ä¹‹å‰æ˜¯ 1ï¼Œå‡å®Œå˜æˆ 0
         {
             std::lock_guard<detail::spinlock> lock(m_lock);
             for (auto handle : m_waiters)
@@ -91,10 +67,6 @@ private:
     std::vector<std::coroutine_handle<>> m_waiters;
 };
 
-/**
- * @brief RAII for latch
- *
- */
 class latch_guard
 {
 public:

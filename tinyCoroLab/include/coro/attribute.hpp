@@ -2,7 +2,6 @@
 
 #include "config.h"
 
-// This is a GCC extension; define it only for GCC and compilers that emulate GCC.
 #if defined(__GNUC__) && !defined(__clang__)
     #define CORO_ATTR(attr) __attribute__((attr))
     #define CORO_INLINE     __attribute__((always_inline))

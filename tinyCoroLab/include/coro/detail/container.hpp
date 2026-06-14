@@ -7,11 +7,6 @@
 
 namespace coro::detail
 {
-/**
- * @brief container is used to store variable and return
- *
- * @tparam T
- */
 template<typename T>
 // requires(!std::same_as<T, void> && !concepts::pod_type<T>)
 struct container
@@ -177,7 +172,6 @@ public:
         }
         else
         {
-            // throw std::runtime_error{"The return value was never set, did you execute the coroutine?"};
             return T{};
         }
     }

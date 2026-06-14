@@ -1,13 +1,3 @@
-/**
- * @file context.hpp
- * @author JiahuiWang
- * @brief lab2b
- * @version 1.1
- * @date 2025-03-26
- *
- * @copyright Copyright (c) 2025
- *
- */
 #pragma once
 
 #include <atomic>
@@ -21,20 +11,7 @@
 
 namespace coro
 {
-/**
- * @brief Welcome to tinycoro lab2b, in this part you will use engine to build context. Like
- * equipping soldiers with weapons, context will use engine to execute io task and computation task.
- *
- * @warning You should carefully consider whether each implementation should be thread-safe.
- *
- * You should follow the rules below in this part:
- *
- * @note Do not modify existing functions and class declaration, which may cause the test to not run
- * correctly, but you can change the implementation logic if you need.
- *
- * @note The location marked by todo is where you must add code, but you can also add code anywhere
- * you want, such as function and class definitions, even member variables.
- */
+
 
 using config::ctx_id;
 using std::atomic;
@@ -54,11 +31,6 @@ using engine = detail::engine;
 
 class scheduler;
 
-/**
- * @brief Each context own one engine, it's the core part of tinycoro,
- * which can process computation task and io task
- *
- */
 class context
 {
     friend class scheduler;
@@ -70,27 +42,15 @@ public:
     context& operator=(const context&) = delete;
     context& operator=(context&&)      = delete;
 
-    [[CORO_TEST_USED(lab2b)]] auto init() noexcept -> void;
+    auto init() noexcept -> void;
 
-    [[CORO_TEST_USED(lab2b)]] auto deinit() noexcept -> void;
+    auto deinit() noexcept -> void;
 
-    /**
-     * @brief work thread start running
-     *
-     */
-    [[CORO_TEST_USED(lab2b)]] auto start() noexcept -> void;
+        auto start() noexcept -> void;
 
-    /**
-     * @brief send stop signal to work thread
-     *
-     */
-    [[CORO_TEST_USED(lab2b)]] auto notify_stop() noexcept -> void;
+        auto notify_stop() noexcept -> void;
 
-    /**
-     * @brief wait work thread stop
-     *
-     */
-    inline auto join() noexcept -> void { m_job->join(); }
+        inline auto join() noexcept -> void { m_job->join(); }
 
     inline auto submit_task(task<void>&& task) noexcept -> void
     {
@@ -101,42 +61,17 @@ public:
 
     inline auto submit_task(task<void>& task) noexcept -> void { submit_task(task.handle()); }
 
-    /**
-     * @brief submit one task handle to context
-     *
-     * @param handle
-     */
-    [[CORO_TEST_USED(lab2b)]] auto submit_task(std::coroutine_handle<> handle) noexcept -> void;
+        auto submit_task(std::coroutine_handle<> handle) noexcept -> void;
 
-    /**
-     * @brief get context unique id
-     *
-     * @return ctx_id
-     */
-    inline auto get_ctx_id() noexcept -> ctx_id { return m_id; }
+        inline auto get_ctx_id() noexcept -> ctx_id { return m_id; }
 
-    /**
-     * @brief add reference count of context
-     *
-     * @param register_cnt
-     */
-    [[CORO_TEST_USED(lab2b)]] auto register_wait(int register_cnt = 1) noexcept -> void;
+        auto register_wait(int register_cnt = 1) noexcept -> void;
 
-    /**
-     * @brief reduce reference count of context
-     *
-     * @param register_cnt
-     */
-    [[CORO_TEST_USED(lab2b)]] auto unregister_wait(int register_cnt = 1) noexcept -> void;
+        auto unregister_wait(int register_cnt = 1) noexcept -> void;
 
     inline auto get_engine() noexcept -> engine& { return m_engine; }
 
-    /**
-     * @brief main logic of work thread
-     *
-     * @param token
-     */
-    [[CORO_TEST_USED(lab2b)]] auto run(stop_token token) noexcept -> void;
+        auto run(stop_token token) noexcept -> void;
 
     inline auto is_idle() noexcept -> bool
     {
@@ -150,11 +85,11 @@ private:
     CORO_ALIGN engine   m_engine;
     unique_ptr<jthread> m_job;
     ctx_id              m_id;
-    atomic<int>  m_wait_count{0};  // ÒıÓÃ¼ÆÊı£¬¼ÇÂ¼¹ÒÆğµÈ´ıµÄĞ­³ÌÊı
-    atomic<bool> m_running_task{false}; //±ê¼Çµ±Ç°ÊÇ·ñÕıÔÚ exec_one_task Ö´ĞĞĞ­³ÌÌå
+    atomic<int>  m_wait_count{0};  // å¼•ç”¨è®¡æ•°ï¼Œè®°å½•æŒ‚èµ·ç­‰å¾…çš„åç¨‹æ•°
+    atomic<bool> m_running_task{false}; //æ ‡è®°å½“å‰æ˜¯å¦æ­£åœ¨ exec_one_task æ‰§è¡Œåç¨‹ä½“
     /*
-        Çø·ÖÁ½ÖÖÄ£Ê½¡£ÎŞ scheduler Ê±Îª false£¬context ĞèÒª×Ô¶¯Í£Ö¹£»ÓĞ scheduler Ê±Îª
-        true£¬context ±ØĞëµÈ scheduler ·¢ stop ĞÅºÅ²ÅÍË³ö£¨·ñÔò round-robin »á°ÑÈÎÎñÅÉ»ØÒÑÍË³öµÄ context µ¼ÖÂ¶ªÈÎÎñ£©¡£
+        åŒºåˆ†ä¸¤ç§æ¨¡å¼ã€‚æ—  scheduler æ—¶ä¸º falseï¼Œcontext éœ€è¦è‡ªåŠ¨åœæ­¢ï¼›æœ‰ scheduler æ—¶ä¸º
+        trueï¼Œcontext å¿…é¡»ç­‰ scheduler å‘ stop ä¿¡å·æ‰é€€å‡ºï¼ˆå¦åˆ™ round-robin ä¼šæŠŠä»»åŠ¡æ´¾å›å·²é€€å‡ºçš„ context å¯¼è‡´ä¸¢ä»»åŠ¡ï¼‰ã€‚
     */
     bool  m_managed_by_scheduler{false};
     

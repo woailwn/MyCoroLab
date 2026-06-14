@@ -9,11 +9,6 @@
 
 namespace coro::allocator::memory
 {
-/**
- * @brief The template for developer to implement memory allocator strategy
- *
- * @tparam alloc_strategy
- */
 template<coro::detail::memory_allocator alloc_strategy>
 class memory_allocator
 {
@@ -32,11 +27,6 @@ public:
     auto release(void* ptr) -> void {}
 };
 
-/**
- * @brief std memory allocator
- *
- * @tparam
- */
 template<>
 class memory_allocator<coro::config::kMemoryAllocator>
 {

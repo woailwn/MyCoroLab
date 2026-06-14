@@ -18,26 +18,18 @@ using config::ctx_id;
 using std::atomic;
 class engine;
 
-/**
- * @brief store thread local variables
- *
- */
 struct CORO_ALIGN local_info
 {
     context* ctx{nullptr};
     engine*  egn{nullptr};
-    // TODO: Add more local var
+    // 待办: Add more local var
 };
 
-/**
- * @brief store thread shared variables
- *
- */
 struct global_info
 {
     atomic<ctx_id>   context_id{0};
     atomic<uint32_t> engine_id{0};
-// TODO: Add more global var
+// 待办: Add more global var
 #ifdef ENABLE_MEMORY_ALLOC
     coro::allocator::memory::memory_allocator<config::kMemoryAllocator>* mem_alloc;
 #endif
@@ -56,7 +48,6 @@ inline auto init_meta_info() noexcept -> void
 #endif
 }
 
-// This function is used to distinguish whether you are currently in a worker thread
 inline auto is_in_working_state() noexcept -> bool
 {
     return linfo.ctx != nullptr;

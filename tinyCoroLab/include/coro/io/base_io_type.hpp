@@ -3,7 +3,6 @@
 namespace coro::io::detail
 {
 
-// If you need to use the feature "IOSQE_FIXED_FILE", just include fixed_fds as member varaible,
 // this class will automatically fetch fixed fds from local engine's io_uring
 struct fixed_fds
 {

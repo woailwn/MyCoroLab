@@ -14,17 +14,12 @@
 namespace coro
 {
 
-/**
- * @brief scheduler just control context to run and stop,
- * it also use dispatcher to decide which context can accept the task
- *
- */
 class scheduler
 {
     friend context;
 
 public:
-    [[CORO_TEST_USED(lab2b)]] inline static auto init(size_t ctx_cnt = std::thread::hardware_concurrency()) noexcept
+    inline static auto init(size_t ctx_cnt = std::thread::hardware_concurrency()) noexcept
         -> void
     {
         if (ctx_cnt == 0)
@@ -34,11 +29,7 @@ public:
         get_instance()->init_impl(ctx_cnt);
     }
 
-    /**
-     * @brief loop work mode, auto wait all context finish job
-     *
-     */
-    [[CORO_TEST_USED(lab2b)]] inline static auto loop() noexcept -> void { get_instance()->loop_impl(); }
+        inline static auto loop() noexcept -> void { get_instance()->loop_impl(); }
 
     static inline auto submit(task<void>&& task) noexcept -> void
     {
@@ -49,7 +40,7 @@ public:
 
     static inline auto submit(task<void>& task) noexcept -> void { submit(task.handle()); }
 
-    [[CORO_TEST_USED(lab2b)]] inline static auto submit(std::coroutine_handle<> handle) noexcept -> void
+    inline static auto submit(std::coroutine_handle<> handle) noexcept -> void
     {
         get_instance()->submit_task_impl(handle);
     }
@@ -61,21 +52,18 @@ private:
         return &sc;
     }
 
-    [[CORO_TEST_USED(lab2b)]] auto init_impl(size_t ctx_cnt) noexcept -> void;
+    auto init_impl(size_t ctx_cnt) noexcept -> void;
 
-    [[CORO_TEST_USED(lab2b)]] auto loop_impl() noexcept -> void;
+    auto loop_impl() noexcept -> void;
 
     auto stop_impl() noexcept -> void;
 
-    [[CORO_TEST_USED(lab2b)]] auto submit_task_impl(std::coroutine_handle<> handle) noexcept -> void;
-
-    // TODO[lab2b]: Add more function if you need
+    auto submit_task_impl(std::coroutine_handle<> handle) noexcept -> void;
 
 private:
     size_t                                              m_ctx_cnt{0};
     detail::ctx_container                               m_ctxs;
     detail::dispatcher<coro::config::kDispatchStrategy> m_dispatcher;
-    // TODO[lab2b]: Add more member variables if you need
 
 #ifdef ENABLE_MEMORY_ALLOC
     // Memory Allocator

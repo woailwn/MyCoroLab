@@ -33,7 +33,7 @@ auto scheduler::loop_impl() noexcept -> void
             // bool any_running = false;
             // for (int i = 0; i < m_ctx_cnt; i++) {
             //     if (m_ctxs[i]->m_running_task.load(memory_order_acquire))
-            //         any_running = true;  // ×¢Òâ£º²»Òª break£¬±ØÐëÈ«²¿¶ÁÍê
+            //         any_running = true;  // æ³¨æ„ï¼šä¸è¦ breakï¼Œå¿…é¡»å…¨éƒ¨è¯»å®Œ
             // }
 
             // if (any_running) {
@@ -56,7 +56,6 @@ auto scheduler::loop_impl() noexcept -> void
 
 auto scheduler::stop_impl() noexcept -> void
 {
-    // TODO[lab2b]: example function
     // This is an example which just notify stop signal to each context,
     // if you don't need this, function just ignore or delete it
     for (int i = 0; i < m_ctx_cnt; i++)
@@ -67,7 +66,6 @@ auto scheduler::stop_impl() noexcept -> void
 
 auto scheduler::submit_task_impl(std::coroutine_handle<> handle) noexcept -> void
 {
-    // TODO[lab2b]: Add you codes
     size_t ctx_id = m_dispatcher.dispatch();
     m_ctxs[ctx_id]->submit_task(handle);
 }

@@ -45,10 +45,6 @@ auto stdin_awaiter::callback(io_info* data, int res) noexcept -> void
 
 namespace net
 {
-/**
- * @brief tcp awaiter
- *
- */
 namespace tcp
 {
 tcp_accept_awaiter::tcp_accept_awaiter(int listenfd, int io_flag, int sqe_flag) noexcept
@@ -56,7 +52,7 @@ tcp_accept_awaiter::tcp_accept_awaiter(int listenfd, int io_flag, int sqe_flag) 
     m_info.type = io_type::tcp_accept;
     m_info.cb   = &tcp_accept_awaiter::callback;
 
-    // FIXME: this isn't atomic, maybe cause bug?
+    // 修复: this isn't atomic, maybe cause bug?
     io_uring_sqe_set_flags(m_urs, sqe_flag);
     io_uring_prep_accept(m_urs, listenfd, nullptr, &len, io_flag);
     io_uring_sqe_set_data(m_urs, &m_info); // old uring version need set data after prep

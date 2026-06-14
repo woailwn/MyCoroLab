@@ -8,12 +8,6 @@
 namespace coro::detail
 {
 
-/**
- * @brief marked_buffer is a fixed buffer which can lease buffer item to outside
- *
- * @tparam type: buffer item type
- * @tparam length: length of fixed buffer
- */
 template<typename Type, size_t length>
 struct marked_buffer
 {

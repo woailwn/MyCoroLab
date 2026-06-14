@@ -1,13 +1,3 @@
-/**
- * @file io_awaiter.hpp
- * @author Jiahui Wang
- * @brief This file includes all awaiter of IO operations
- * @version 1.2
- * @date 2025-05-27
- *
- * @copyright Copyright (c) 2025
- *
- */
 #pragma once
 
 #include <netdb.h>
@@ -35,10 +25,6 @@ public:
 
 namespace net
 {
-/**
- * @brief tcp awaiter
- *
- */
 namespace tcp
 {
 class tcp_accept_awaiter : public detail::base_io_awaiter

@@ -34,10 +34,6 @@
         ->Arg(para2)                                                                                                   \
         ->Arg(para3)
 
-/**
- * @brief a simple thread pool, must submit task before start
- *
- */
 class thread_pool
 {
 public:

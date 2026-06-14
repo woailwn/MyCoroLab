@@ -76,5 +76,6 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/home/zhy/MyProject/tinyCoroLab/tinyCoroLab/third_party/spdlog/bench"
 }

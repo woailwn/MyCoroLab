@@ -6,7 +6,7 @@
 namespace coro::detail
 {
 
-// TODO: Add lifo and fifo strategy support
+// 待办: Add lifo and fifo strategy support
 enum class schedule_strategy : uint8_t
 {
     fifo, // default
@@ -20,7 +20,7 @@ enum class dispatch_strategy : uint8_t
     none
 };
 
-// TODO: Add awaiter base support
+// 待办: Add awaiter base support
 using awaiter_ptr = void*;
 
 using noop_awaiter = std::suspend_always;
